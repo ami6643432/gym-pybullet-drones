@@ -34,12 +34,18 @@ class DSLPIDControl(BaseControl):
         if self.DRONE_MODEL != DroneModel.CF2X and self.DRONE_MODEL != DroneModel.CF2P:
             print("[ERROR] in DSLPIDControl.__init__(), DSLPIDControl requires DroneModel.CF2X or DroneModel.CF2P")
             exit()
-        self.P_COEFF_FOR = np.array([.4, .4, 1.25])
-        self.I_COEFF_FOR = np.array([.05, .05, .05])
-        self.D_COEFF_FOR = np.array([.2, .2, .5])
+        #Proportional, Integral, and Derivative coefficients for position and attitude control
+        self.P_COEFF_FOR = np.array([.4, .4, .1])
+        
+        self.I_COEFF_FOR = np.array([.05, .05, 1.0])
+        
+        self.D_COEFF_FOR = np.array([.2, .2, 0.5])
+        
+        
         self.P_COEFF_TOR = np.array([70000., 70000., 60000.])
         self.I_COEFF_TOR = np.array([.0, .0, 500.])
         self.D_COEFF_TOR = np.array([20000., 20000., 12000.])
+
         self.PWM2RPM_SCALE = 0.2685
         self.PWM2RPM_CONST = 4070.3
         self.MIN_PWM = 20000
@@ -191,9 +197,29 @@ class DSLPIDControl(BaseControl):
         self.integral_pos_e = np.clip(self.integral_pos_e, -2., 2.)
         self.integral_pos_e[2] = np.clip(self.integral_pos_e[2], -0.15, .15)
         #### PID target thrust #####################################
+
+        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) # Thrust = Kp * e
+
+
+        # Thrust = Kp * e + Ki * integral(e)
+        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
+
         target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
                         + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
                         + np.multiply(self.D_COEFF_FOR, vel_e) + np.array([0, 0, self.GRAVITY])
+        
+        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
+        #                 + np.multiply(self.D_COEFF_FOR, vel_e)
+        
+        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
+        #                 + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
+        #                 + np.multiply(self.D_COEFF_FOR, vel_e)
+        
+        
+        
+        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) + np.array([0, 0, self.GRAVITY])
+        
+
         scalar_thrust = max(0., np.dot(target_thrust, cur_rotation[:,2]))
         thrust = (math.sqrt(scalar_thrust / (4*self.KF)) - self.PWM2RPM_CONST) / self.PWM2RPM_SCALE
         target_z_ax = target_thrust / np.linalg.norm(target_thrust)
