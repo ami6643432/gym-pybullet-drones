@@ -35,11 +35,11 @@ class DSLPIDControl(BaseControl):
             print("[ERROR] in DSLPIDControl.__init__(), DSLPIDControl requires DroneModel.CF2X or DroneModel.CF2P")
             exit()
         #Proportional, Integral, and Derivative coefficients for position and attitude control
-        self.P_COEFF_FOR = np.array([.4, .4, .1])
+        self.P_COEFF_FOR = np.array([.4, .4, 0.0])
         
-        self.I_COEFF_FOR = np.array([.05, .05, 1.0])
+        self.I_COEFF_FOR = np.array([.05, .05, 0.0])
         
-        self.D_COEFF_FOR = np.array([.2, .2, 0.5])
+        self.D_COEFF_FOR = np.array([.2, .2, 0.0])
         
         
         self.P_COEFF_TOR = np.array([70000., 70000., 60000.])
@@ -196,17 +196,16 @@ class DSLPIDControl(BaseControl):
         self.integral_pos_e = self.integral_pos_e + pos_e*control_timestep
         self.integral_pos_e = np.clip(self.integral_pos_e, -2., 2.)
         self.integral_pos_e[2] = np.clip(self.integral_pos_e[2], -0.15, .15)
+
         #### PID target thrust #####################################
 
         # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) # Thrust = Kp * e
 
-
-        # Thrust = Kp * e + Ki * integral(e)
         # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
 
-        target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
-                        + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
-                        + np.multiply(self.D_COEFF_FOR, vel_e) + np.array([0, 0, self.GRAVITY])
+        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
+        #                 + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
+        #                 + np.multiply(self.D_COEFF_FOR, vel_e) + np.array([0, 0, self.GRAVITY])
         
         # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
         #                 + np.multiply(self.D_COEFF_FOR, vel_e)
