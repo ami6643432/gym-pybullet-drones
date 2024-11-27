@@ -198,26 +198,10 @@ class DSLPIDControl(BaseControl):
         self.integral_pos_e[2] = np.clip(self.integral_pos_e[2], -0.15, .15)
 
         #### PID target thrust #####################################
-
-        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) # Thrust = Kp * e
-
-        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
-
-        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
-        #                 + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
-        #                 + np.multiply(self.D_COEFF_FOR, vel_e) + np.array([0, 0, self.GRAVITY])
-        
-        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
-        #                 + np.multiply(self.D_COEFF_FOR, vel_e)
         
         # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) \
         #                 + np.multiply(self.I_COEFF_FOR, self.integral_pos_e) \
         #                 + np.multiply(self.D_COEFF_FOR, vel_e)
-        
-        
-        
-        # target_thrust = np.multiply(self.P_COEFF_FOR, pos_e) + np.array([0, 0, self.GRAVITY])
-        
 
         scalar_thrust = max(0., np.dot(target_thrust, cur_rotation[:,2]))
         thrust = (math.sqrt(scalar_thrust / (4*self.KF)) - self.PWM2RPM_CONST) / self.PWM2RPM_SCALE
